@@ -1,6 +1,10 @@
 import os
 import json
 from datetime import date
+from flask import Flask
+from flask import render_template
+
+app = Flask(__name__)
 
 def get_time(time):
     if time < 10:
@@ -27,6 +31,9 @@ def get_articles():
                 articles.append(json.loads(f.read()))
     return articles
 
-if __name__ == '__main__':
+@app.route('/')
+def print_news():
     articles = get_articles()
-    print(articles)
+    titles = [a['title'] for a in articles]
+    return render_template('index.html', titles=titles)
+

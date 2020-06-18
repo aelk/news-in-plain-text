@@ -1,9 +1,7 @@
 import os
 import json
-import psycopg2
 from datetime import date
-from flask import Flask
-from flask import render_template
+from flask import Flask, render_template, url_for
 
 app = Flask(__name__)
 
@@ -16,18 +14,12 @@ def get_time(time):
 def get_date():
     today = date.today()
     month = get_time(today.month)
-    day = get_time(today.day)
+    day = str(int(get_time(today.day)) + 1)
     return (str(today.year), month, day)
 
 def get_directory(base_dir):
     year, month, day = get_date()
     return base_dir + '/' + year + '/' + month + '/' + day + '/rt.com/' # TODO: TEMP
-
-def get_articles_from_db():
-    conn = psycopg2.connect("dbname=newsDB user=redacted password=redacted")
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM newsDB')
-
 
 def get_articles():
     articles = []
@@ -38,9 +30,15 @@ def get_articles():
                 articles.append(json.loads(f.read()))
     return articles
 
+@app.route('/article/<filename>')
+def article(filename):
+    articles = get_articles()
+    for article in articles:
+        if article['filename'] == filename:
+            return render_template('article.html', article=article)
+
 @app.route('/')
-def print_news():
+def index():
     articles = get_articles()
     titles = [a['title'] for a in articles]
-    return render_template('index.html', titles=titles)
-
+    return render_template('index.html', articles=get_articles())

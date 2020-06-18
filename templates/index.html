@@ -2,8 +2,8 @@
 <title>news in plain text</title>
 <h1>news in plain text</h1>
 
-{% for t in titles %}
-    {{ t }} <br>
+{% for article in articles %}
+    <a href="{{ url_for('article', filename=article.filename) }}">
+        {{ article.title }} <br>
+    </a>
 {% endfor %}
-
-
